@@ -13,6 +13,7 @@ export class RoomService {
   async findOne(number: number) {
     return await this.prisma.room.findUnique({
       where: { number: number },
+      include: { Teacher: true, students: true },
     });
   }
 

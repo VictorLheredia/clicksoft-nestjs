@@ -19,7 +19,7 @@ export class RoomController {
     return this.roomService.findAll();
   }
 
-  @Get('number')
+  @Get(':number')
   async findOne(@Param('number') number: string) {
     return this.roomService.findOne(+number);
   }
@@ -29,7 +29,7 @@ export class RoomController {
     return this.roomService.create(data);
   }
 
-  @Patch('number')
+  @Patch(':number')
   async update(
     @Param('number') number: string,
     @Body() data: Prisma.RoomUpdateInput,
@@ -37,7 +37,7 @@ export class RoomController {
     return this.roomService.update(+number, data);
   }
 
-  @Delete('number')
+  @Delete(':number')
   async delete(@Param('number') number: string) {
     return this.roomService.delete(+number);
   }
