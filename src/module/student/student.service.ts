@@ -18,14 +18,19 @@ export class StudentService {
   }
 
   async create(data: Prisma.StudentCreateInput) {
-    return this.prisma.student.create({ data });
+    return this.prisma.student.create({
+      data,
+    });
   }
 
   async update(register: number, data: Prisma.StudentUpdateInput) {
-    return this.prisma.student.update({ data, where: { register: register } });
+    return this.prisma.student.update({
+      data,
+      where: { register: register },
+    });
   }
 
   async delete(register: number) {
-    return this.prisma.student.delete({ where: { register: register } });
+    await this.prisma.student.delete({ where: { register: register } });
   }
 }
