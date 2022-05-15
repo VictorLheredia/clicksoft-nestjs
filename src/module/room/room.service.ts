@@ -7,13 +7,17 @@ export class RoomService {
   constructor(private prisma: PrismaService) {}
 
   async findAll() {
-    return await this.prisma.room.findMany();
+    return await this.prisma.room.findMany({});
   }
 
   async findOne(number: number) {
     return await this.prisma.room.findUnique({
       where: { number: number },
-      include: { Teacher: true, students: true },
+      include: {
+        Teacher: true,
+        students: true,
+        _count: { select: { students: true } },
+      },
     });
   }
 
@@ -33,6 +37,32 @@ export class RoomService {
   async delete(number: number) {
     await this.prisma.room.delete({
       where: { number: number },
+    });
+  }
+
+  async enroll(number: number, data: any) {
+    await this.prisma.room.update({
+      where: {
+        number: number,
+      },
+      data: {
+        students: {
+          connect: [{ register: data.studentRegister }],
+        },
+      },
+    });
+  }
+
+  async unenroll(number: number, data: any) {
+    await this.prisma.room.update({
+      where: {
+        number: number,
+      },
+      data: {
+        students: {
+          disconnect: [{ register: data.studentRegister }],
+        },
+      },
     });
   }
 }

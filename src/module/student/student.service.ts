@@ -7,13 +7,32 @@ export class StudentService {
   constructor(private prisma: PrismaService) {}
 
   async findAll() {
-    return await this.prisma.student.findMany();
+    return await this.prisma.student.findMany({
+      orderBy: {
+        register: 'desc',
+      },
+    });
   }
 
   async findOne(register: number) {
     return await this.prisma.student.findUnique({
       where: { register: register },
-      include: { rooms: true },
+      include: {
+        rooms: {
+          select: {
+            number: true,
+            Teacher: {
+              select: {
+                name: true,
+                email: true,
+              },
+            },
+          },
+          orderBy: {
+            number: 'asc',
+          },
+        },
+      },
     });
   }
 

@@ -32,6 +32,8 @@ model Teacher {
 model Room {
   id              String    @id @default(uuid())
   number          Int       @unique
+  capacity        Int
+  available       Boolean
   teacherRegister Int
   Teacher         Teacher   @relation(fields: [teacherRegister], references: [register])
   students        Student[]

@@ -41,4 +41,14 @@ export class RoomController {
   async delete(@Param('number') number: string) {
     return this.roomService.delete(+number);
   }
+
+  @Patch(':number/enroll')
+  async enroll(@Param('number') number: string, @Body() data: any) {
+    return this.roomService.enroll(+number, data);
+  }
+
+  @Patch(':number/unenroll')
+  async unenroll(@Param('number') number: string, @Body() data: any) {
+    return this.roomService.unenroll(+number, data);
+  }
 }
