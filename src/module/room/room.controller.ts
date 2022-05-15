@@ -25,14 +25,14 @@ export class RoomController {
   }
 
   @Post()
-  async create(@Body() data: Prisma.RoomCreateInput) {
+  async create(@Body() data: Prisma.RoomUncheckedCreateInput) {
     return this.roomService.create(data);
   }
 
   @Patch(':number')
   async update(
     @Param('number') number: string,
-    @Body() data: Prisma.RoomUpdateInput,
+    @Body() data: Prisma.RoomUncheckedUpdateInput,
   ) {
     return this.roomService.update(+number, data);
   }

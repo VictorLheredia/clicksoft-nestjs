@@ -7,29 +7,54 @@ export class RoomService {
   constructor(private prisma: PrismaService) {}
 
   async findAll() {
-    return await this.prisma.room.findMany({});
+    return await this.prisma.room.findMany({
+      orderBy: {
+        number: 'desc',
+      },
+    });
   }
 
   async findOne(number: number) {
     return await this.prisma.room.findUnique({
       where: { number: number },
       include: {
-        Teacher: true,
-        students: true,
+        Teacher: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+        students: {
+          select: {
+            register: true,
+            name: true,
+            email: true,
+          },
+        },
         _count: { select: { students: true } },
       },
     });
   }
 
-  async create(data: Prisma.RoomCreateInput) {
+  async create(data: Prisma.RoomUncheckedCreateInput) {
     return await this.prisma.room.create({
-      data,
+      data: {
+        number: data.number,
+        capacity: data.capacity,
+        available: data.available,
+        teacherRegister: data.teacherRegister,
+      },
     });
   }
 
-  async update(number: number, data: Prisma.RoomUpdateInput) {
+  async update(number: number, data: Prisma.RoomUncheckedUpdateInput) {
     return await this.prisma.room.update({
-      data,
+      data: {
+        number: data.number,
+        capacity: data.capacity,
+        available: data.available,
+        teacherRegister: data.teacherRegister,
+      },
       where: { number: number },
     });
   }
