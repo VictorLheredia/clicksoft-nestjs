@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
 import { Prisma } from '@prisma/client';
 
@@ -7,7 +7,7 @@ export class StudentService {
   constructor(private prisma: PrismaService) {}
 
   async findAll() {
-    return await this.prisma.student.findMany({
+    return this.prisma.student.findMany({
       orderBy: {
         register: 'desc',
       },
@@ -15,7 +15,15 @@ export class StudentService {
   }
 
   async findOne(register: number) {
-    return await this.prisma.student.findUnique({
+    //Check student exists
+    const studentExists = await this.prisma.student.findUnique({
+      where: { register: register },
+    });
+    if (!studentExists) {
+      throw new HttpException('Aluno não cadastrado', HttpStatus.NOT_FOUND);
+    }
+
+    return this.prisma.student.findUnique({
       where: { register: register },
       include: {
         rooms: {
@@ -37,7 +45,47 @@ export class StudentService {
   }
 
   async create(data: Prisma.StudentCreateInput) {
-    return await this.prisma.student.create({
+    // Check inputs
+    if (!data.register) {
+      throw new HttpException(
+        'O campo ( Matrícula do aluno ) é obrigatório',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    if (!data.name) {
+      throw new HttpException(
+        'O campo ( nome do aluno ) é obrigatório',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    if (!data.email) {
+      throw new HttpException(
+        'O campo ( email ) é obrigatório',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    if (!data.birthdate) {
+      throw new HttpException(
+        'O campo ( data de Nascimento ) é obrigatório',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    //Check student exists
+    const studentExists = await this.prisma.student.findUnique({
+      where: { register: data.register },
+    });
+    if (studentExists) {
+      throw new HttpException(
+        `Matrícula ${data.register} já cadastrada`,
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    return this.prisma.student.create({
       data: {
         register: data.register,
         name: data.name,
@@ -48,7 +96,18 @@ export class StudentService {
   }
 
   async update(register: number, data: Prisma.StudentUpdateInput) {
-    return await this.prisma.student.update({
+    //Check student exists
+    const studentExists = await this.prisma.student.findUnique({
+      where: { register: register },
+    });
+    if (!studentExists) {
+      throw new HttpException(
+        `Aluno não cadastrado`,
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    return this.prisma.student.update({
       data: {
         register: data.register,
         name: data.name,
@@ -60,6 +119,23 @@ export class StudentService {
   }
 
   async delete(register: number) {
-    await this.prisma.student.delete({ where: { register: register } });
+    //Check student exists
+    const studentExists = await this.prisma.student.findUnique({
+      where: { register: register },
+    });
+    if (!studentExists) {
+      throw new HttpException(
+        `Aluno não cadastrado`,
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    await this.prisma.student.delete({
+      where: { register: register },
+    });
+
+    return {
+      message: `Aluno ${studentExists.name} exlcuido com sucesso!`,
+    };
   }
 }
