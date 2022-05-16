@@ -233,7 +233,7 @@ export class RoomService {
       );
     }
 
-    return this.prisma.room.update({
+    await this.prisma.room.update({
       where: {
         number: number,
       },
@@ -243,6 +243,10 @@ export class RoomService {
         },
       },
     });
+
+    return {
+      message: `O aluno ${student.name} foi matriculado na sala ${room.number} com sucesso!`,
+    };
   }
 
   async unenroll(number: number, data: any) {
